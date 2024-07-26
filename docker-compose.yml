@@ -1,0 +1,48 @@
+# Define os serviços (containers ou grupo de containers).
+services:
+  php-apache:
+    # Informa o diretório a partir do qual irá construir
+    # a imagem do container, o que contém o Dockerfile.
+    build: ./php-apache
+
+    # Nome do container usado pelo Docker.
+    container_name: php-apache-container
+
+    # Mapeia a porta 80 do container para a porta 8080
+    # do host.
+    ports:
+      - "8080:80"
+
+    # Mapeia o diretório local './php-apache' para o 
+    # diretório '/var/www/html' do container. 
+    volumes:
+      - ./php-apache:/var/www/html
+
+    # Indica que o serviço 'php-apache' depende do 
+    # serviço 'db' e garante que o serviço 'db' seja 
+    # iniciado antes do serviço 'php-apache'.
+    depends_on:
+      - db
+
+  db:
+    # Especifica imagem usada para serviço 'db'.
+    image: postgres:latest
+
+    container_name: postgres-container
+
+    # Define variáveis de ambiente que configuram
+    # o PostgreSQL.
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydatabase
+
+    # Mapeia o arquivo local './init.sql' para o diretório 
+    # '/docker-entrypoint-initdb.d/init.sql' no container.
+    # Esse diretório é onde scripts de inicialização são
+    # colocados no container PostgreSQL.
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    ports:
+      - "5432:5432"
